@@ -34,8 +34,8 @@ function applyProxy(args: string[], proxy?: string) {
   if (proxy) args.push('--proxy', proxy)
 }
 
-function applyYoutubeRuntime(args: string[]) {
-  const runtime = checkJsRuntime()
+async function applyYoutubeRuntime(args: string[]) {
+  const runtime = await checkJsRuntime()
   // 依赖上面返回的 kind，而不是从路径猜运行时类型
   if (runtime.path && runtime.kind) {
     args.push('--js-runtimes', `${runtime.kind}:${runtime.path}`)
@@ -83,7 +83,7 @@ async function dumpInfo(url: string, cookiesFile: string | undefined, proxy: str
   const isYoutube = url.includes('youtube.com') || url.includes('youtu.be')
   const base = [...buildBaseArgs(isYoutube), '--dump-json', ...extraArgs]
   applyProxy(base, proxy)
-  if (isYoutube) applyYoutubeRuntime(base)
+  if (isYoutube) await applyYoutubeRuntime(base)
   return runWithCookies(getCookieAttempts(cookiesFile), (cookieArgs) => runYtdlp([...base, ...cookieArgs, url]))
 }
 
